@@ -57,27 +57,26 @@ Return the round-trip time. Haven't looked into what this is for, I think I saw 
 This method is central to how the NetworkManager communicates with the transport. The NetworkManager calls this PollEvent method rapidly (something like every network frame), asking the transport if anything has happened. The return type NetworkEvent is an enum with 4 values, but notice there are also 3 output parameters that are effectively returned too.
   
 These are the possible NetworkEvent values:
-Data
-Connect
-Disconnect
-Nothing
+* Data
+* Connect
+* Disconnect
+* Nothing
 
+The rules:
 * If nothing has happened since the last poll, then NetworkEvent.Nothing should be returned.
-* If a client has connected then NetworkEvent.Connect should be returned and the clientId output parameter should be set to the Id of the new client. More on clientIds below.
+* If a client has connected then NetworkEvent.Connect should be returned and the clientId output parameter should be set to the Id of the new client.
 * If a client has disconnected then NetworkEvent.Disconnect should be returned and the clientId output parameter should be set to the Id of the disconnecting client.
 * If data has been received from a client, then NetworkEvent.Data should be returned, the clientId output parameter set to the Id of the client that received the data, and the payload output parameter set to hold the data itself.
 * (The out parameter receiveTime should be set to Time.realtimeSinceStartup)
   
-**Call order**
+**Call Order**
   
-A quick mention of the kind of order to expect the above methods to be called in.
-  
-Just a reminder of the 3 possible ways to start multiplayer with NetworkManager:
-NetworkManager.Singleton.StartClient()   run as a client connecting to a server
-NetworkManager.Singleton.StartServer()   run as a standalone server that other clients will connect to
-NetworkManager.Singleton.StartHost()     run both a server and a client (self-host the game)  
+There are 3 possible ways to start multiplayer with the NetworkManager:
+* NetworkManager.Singleton.StartClient()   run as a client connecting to a server
+* NetworkManager.Singleton.StartServer()   run as a standalone server that other clients will connect to
+* NetworkManager.Singleton.StartHost()     run both a server and a client (self-host the game)  
 
-If self-hosting, this is the order of calls into the transport. (PollEvent is called many times, only the relevant calls listed below):  
+If self-hosting, this is the order of calls into the transport. (PollEvent is called many times returning Nothing, so only the relevant calls of PollEvent are listed below):  
 
 Initialize()
 StartServer()
