@@ -17,33 +17,43 @@ Unity.Netcode.NetworkTransport defines 8 methods and one property that must be o
 # The 8 methods (and 1 property)
 
 **public abstract ulong ServerClientId**
+
 Each connected client has a unique client Id. The server has a unique client Id too. Yes the game server has a ClientId. When a client wants to send a message to the server, it specifes the server's client Id. It's important to grasp that the "clients" referred to by clientIds are not the same as game clients. You can think of them as destination IDs. This ServerClientId property should return the client Id of the server. The transport determines how client Ids are assigned, including what the server's clientId is.
 
 **public abstract void Initialize()**
+
 Called first. The Transport can do any initialisation it wants here.
 
 **public abstract void Shutdown()**
+
 Called last. The Transport can clear up resources here.
 
 **public abstract bool StartClient()**
+
 The Transport should implement StartClient by opening a connection to the server. It shouldn't block waiting though (none of these methods should block or delay), it should return true to indicate that the effort to connect is being made, or false if it can't even try.
 
 **public abstract bool StartServer();**
+
 The transport should implement StartServer by beginning to accept connections from clients. For example open a listening socket. If this is successful it should return true.
 
-**public abstract void Send(ulong clientId, ArraySegment<byte> payload, NetworkDelivery networkDelivery);**
+**public abstract void Send(ulong clientId, ArraySegment\<byte\> payload, NetworkDelivery networkDelivery);**
+  
 When Send is called, the transport should send the given data/payload to the destination associated with the given clientId (remember this could be the server). NetworkDelivery contains reliability options. I haven't looked into that yet.
 
 **public abstract void DisconnectRemoteClient(ulong clientId);**
+
 End the connection to the given destination.
   
 **public abstract void DisconnectLocalClient();**
+
 End the connection to the server (only called in the context of the client?)
   
 **public abstract ulong GetCurrentRtt(ulong clientId);**
+
 Return the round-trip time. Haven't looked into what this is for, I think I saw it was optional. Perhaps this is used for a calculation that requires latency.
   
-**public abstract NetworkEvent PollEvent(out ulong clientId, out ArraySegment<byte> payload, out float receiveTime);**
+**public abstract NetworkEvent PollEvent(out ulong clientId, out ArraySegment<\byte> payload, out float receiveTime);**
+  
 This method is central to how the NetworkManager communicates with the transport. The NetworkManager calls this PollEvent method rapidly (something like every network frame), asking the transport if anything has happened. The return type NetworkEvent is an enum with 4 values, but notice there are also 3 output parameters that are effectively returned too.
   
 These are the possible NetworkEvent values:
