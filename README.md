@@ -78,28 +78,30 @@ There are 3 possible ways to start multiplayer with the NetworkManager:
 
 If self-hosting, this is the order of calls into the transport. (PollEvent is called many times returning Nothing, so only the relevant calls of PollEvent are listed below):  
 
-Initialize()
-StartServer()
-//NetworkManager.Singleton.OnClientConnectedCallback is raised indicating the host client was connected to the server. This has nothing to do with the transport though.
-//silence until a client connects
-//When a client does connect, a subsequent PollEvent should return NetworkEvent.Connect with a unique clientId for the client
-PollEvent() returning NetworkEvent.Connect
-//The NetworkManager waits for the client to send data.
-//Data is received from the client, a subsequent PollEvent should return NetworkEvent.Data with the clientId of the client
-//The NetworkManager now sends packets to the client
-//Conversation continues
+* Initialize()
+* StartServer()
+* //NetworkManager.Singleton.OnClientConnectedCallback is raised indicating the host client was connected to the server. This has nothing to do with the transport though.
+* //silence until a client connects
+* //When a client does connect, a subsequent PollEvent should return NetworkEvent.Connect with a unique clientId for the client
+* 3. PollEvent() returning NetworkEvent.Connect
+* //The NetworkManager waits for the client to send data.
+* //Data is received from the client, a subsequent PollEvent should return NetworkEvent.Data with the clientId of the client
+* //The NetworkManager now sends packets to the client
+* //Conversation continues
   
-If connecting to a server
-Initialize()
-StartClient()
-//once the client knows the connection is successful, a subsequent PollEvent should return NetworkEvent.Connect with the clientId of the server
-//The NetworkManager sees the NetworkEvent.Connect and sends a packet to the server.
-Send(bytes)
-//The server sends back some packets. A subsequent PollEvent should return NetworkEvent.Data for each packet. 
-//At this point NetworkManager.Singleton.OnClientConnectedCallback is raised
-//Conversation continues
+If connecting to a server (StartClient):
+
+* Initialize()
+* StartClient()
+* //once the client knows the connection is successful, a subsequent PollEvent should return NetworkEvent.Connect with the clientId of the server
+* //The NetworkManager sees the NetworkEvent.Connect and sends a packet to the server.
+* Send(bytes)
+* //The server sends back some packets. A subsequent PollEvent should return NetworkEvent.Data for each packet. 
+* //At this point NetworkManager.Singleton.OnClientConnectedCallback is raised
+* //Conversation continues
 
 **Additional Nodes**
+
 * On a connection, both sides must raise a PollEvent returning NetworkEvent.Connect. Not doing this on either side will cause traffic to freeze.
 * Everything hinges on data being sent to the correct destination for a given clientId. Chaos will happen if clientIds are not unique or consistent.
 * It's the responsibility of the transport to detect timeouts and return Disconnect from a PollEvent.
