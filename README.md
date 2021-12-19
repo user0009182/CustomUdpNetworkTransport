@@ -26,7 +26,7 @@ Called first. The Transport can do any initialisation it wants here.
 
 **public abstract void Shutdown()**
 
-Called last. The Transport can clear up resources here.
+Called last. The Transport can clean up resources here.
 
 **public abstract bool StartClient()**
 
